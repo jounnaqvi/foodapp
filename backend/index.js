@@ -1,18 +1,15 @@
 const express = require("express");
 const cors = require("cors");
-require("./db"); 
+const path = require("path");
 const DisplayData = require("./Routes/DisplayData");
 const Orderdata = require("./Routes/Orderdata");
-// const payment = require(".")
+require("./db");
 
 const app = express();
 const port = process.env.PORT || 5000;
-const paymentRoutes = require('./routes/paymentRoutes');
 
-
-
+// Middleware
 app.use(cors());
-app.use(express.json()); 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   res.setHeader(
@@ -21,20 +18,16 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-
-// app.use('/api/orderdata',orderData); 
-app.use('/api', require('./Routes/DisplayData'));
+app.use("/api",require("./Routes/DisplayData")); 
 app.use('/api', require('./Routes/Orderdata'));
 app.use('/api', require('./Routes/CreateUser')); 
-app.use('/api', paymentRoutes);
-// const paymentRoutes = require('./routes/paymentRoutes'); // adjust path as needed
-// app.use('/api', paymentRoutes);
-// app.use('/api', require('./Routes/orderdata')); 
+app.use('/api', require("./Routes/paymentRoutes"));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "../frontend/build"))); // Adjusted path
 
-
-app.get("/", (req, res) => {
-  res.send("Hello bro");
+// Fallback to serve index.html for any other requests
+app.get("*", (_, res) => {
+  res.sendFile(path.resolve(__dirname, "../frontend/build/index.html")); // Adjusted path
 });
 
 // Start server
